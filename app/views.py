@@ -1,6 +1,6 @@
 from rest_framework import generics, mixins
-from .models import Category, Group, Product, Image, Comment
-from .serializers import CategorySerializer, GroupSerializer, ProductSerializer, ImageSerializer, CommentSerializer
+from .models import Category, Group, Product, Comment
+from .serializers import CategorySerializer, GroupSerializer, ProductSerializer, CommentSerializer
 
 class ListCreateRetrieveUpdateDestroyAPIView(mixins.ListModelMixin,
                                              mixins.CreateModelMixin,
@@ -9,7 +9,7 @@ class ListCreateRetrieveUpdateDestroyAPIView(mixins.ListModelMixin,
                                              mixins.DestroyModelMixin,
                                              generics.GenericAPIView):
     """
-    A view that provides `list`, `create`, `retrieve`, `update`, and `destroy` actions.
+    A view that provides list, create, retrieve, update, and destroy actions.
     """
     queryset = None
     serializer_class = None
@@ -40,10 +40,6 @@ class GroupView(ListCreateRetrieveUpdateDestroyAPIView):
 class ProductView(ListCreateRetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-
-class ImageView(ListCreateRetrieveUpdateDestroyAPIView):
-    queryset = Image.objects.all()
-    serializer_class = ImageSerializer
 
 class CommentView(ListCreateRetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()

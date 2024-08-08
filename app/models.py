@@ -2,7 +2,7 @@ from typing import Any
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
-
+from decimal import Decimal
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -12,7 +12,7 @@ class BaseModel(models.Model):
 
 class Category(BaseModel):
     title = models.CharField(max_length=70, unique=True)
-    slug = models.SlugField(blank=True)
+    slug = models.SlugField(null=True, blank=True)
     image = models.ImageField(upload_to='media/images/category/')
 
     def save(self, *args, **kwargs):
@@ -27,7 +27,7 @@ class Category(BaseModel):
 
 class Group(BaseModel):
     title = models.CharField(max_length=90, unique=True)
-    slug = models.SlugField(blank=True)
+    slug = models.SlugField(null=True, blank=True)
     image = models.ImageField(upload_to='media/images/group/')
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
@@ -43,11 +43,13 @@ class Product(BaseModel):
     discount = models.IntegerField(default=0)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     is_liked = models.ManyToManyField(User, related_name='liked_products', blank=True)
+    image = models.ImageField(upload_to='media/images/product/', null=True, blank=True)  # Add the image field directly to Product
 
     @property
     def discounted_price(self) -> Any:
         if self.discount > 0:
-            return self.price * (1 - (self.discount / 100.0))
+            discount_factor = Decimal(self.discount) / Decimal(100)
+            return self.price * (Decimal(1) - discount_factor)
         return self.price
 
     def save(self, *args, **kwargs):
@@ -56,14 +58,6 @@ class Product(BaseModel):
 
     class Meta:
         ordering = ['-created_at']
-
-class Image(BaseModel):
-    image = models.ImageField(upload_to='media/images/products/')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    is_primary = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.product.name
 
 class Comment(BaseModel):
     class Rating(models.IntegerChoices):
@@ -77,5 +71,3 @@ class Comment(BaseModel):
     rating = models.IntegerField(choices=Rating.choices, default=Rating.One.value)
     file = models.FileField(upload_to='comments/')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-

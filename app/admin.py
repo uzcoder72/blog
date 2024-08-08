@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Group, Product, Image, Comment
+from .models import Category, Group, Product, Comment
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -21,11 +21,6 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_filter = ('group', 'price', 'discount')
 
-@admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
-    list_display = ('product', 'is_primary')
-    list_filter = ('is_primary', 'product__name')
-    search_fields = ('product__name',)
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
