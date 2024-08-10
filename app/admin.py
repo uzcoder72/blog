@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Category, Group, Product, Comment
-
+from app.models import ProductAttribute
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('title', 'slug')
@@ -28,3 +28,7 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('product__name', 'rating')
     list_filter = ('product', 'rating')
 
+@admin.register(ProductAttribute)
+class ProductAttributeAdmin(admin.ModelAdmin):
+    list_display = ('product', 'key', 'value')
+    search_fields = ('product__name', 'key', 'value')

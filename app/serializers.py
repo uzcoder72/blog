@@ -3,7 +3,7 @@ from app.models import Category, Group, Product, Comment
 from rest_framework import serializers
 from app.models import Product, Comment
 from django.db.models import Avg
-from app import models
+from app.models import ProductAttribute
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -17,14 +17,20 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 
+class ProductAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductAttribute
+        fields = ['key', 'value']
+
 class ProductSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
     comment_avg_rating = serializers.SerializerMethodField()
+    attributes = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = ['id', 'name', 'slug', 'description', 'price', 'discount', 'discounted_price',
-                  'group', 'is_liked', 'comment_avg_rating', 'image']  # Include image field
+                  'group', 'is_liked', 'comment_avg_rating', 'image', 'attributes']
 
     def get_is_liked(self, obj):
         user = self.context.get('request').user
@@ -34,12 +40,15 @@ class ProductSerializer(serializers.ModelSerializer):
         average_rating = obj.comment_set.aggregate(Avg('rating'))['rating__avg']
         return round(average_rating, 1) if average_rating else None
 
-
-
+    def get_attributes(self, obj):
+        attributes = obj.attributes.all()
+        attributes_dict = {attr.key: attr.value for attr in attributes}
+        return [attributes_dict]
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+
 

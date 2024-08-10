@@ -56,8 +56,12 @@ class Product(BaseModel):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.name  # This will make the product's name appear in the admin
+
     class Meta:
         ordering = ['-created_at']
+
 
 class Comment(BaseModel):
     class Rating(models.IntegerChoices):
@@ -71,3 +75,10 @@ class Comment(BaseModel):
     rating = models.IntegerField(choices=Rating.choices, default=Rating.One.value)
     file = models.FileField(upload_to='comments/')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+class ProductAttribute(models.Model):
+    product = models.ForeignKey(Product, related_name='attributes', on_delete=models.CASCADE)
+    key = models.CharField(max_length=100)
+    value = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.key}: {self.value}"
