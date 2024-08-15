@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from app.models import Category, Group, Product, Comment
-from rest_framework import serializers
 from app.models import Product, Comment
 from django.db.models import Avg
 from app.models import ProductAttribute
+from django.contrib.auth.models import User
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -51,4 +51,20 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = '__all__'
 
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            email=validated_data['email']
+        )
+        return user
 

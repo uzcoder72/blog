@@ -1,6 +1,12 @@
 from rest_framework import generics, mixins
 from .models import Category, Group, Product, Comment
 from .serializers import CategorySerializer, GroupSerializer, ProductSerializer, CommentSerializer
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
+from app.serializers import RegisterSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth.models import User
 
 class ListCreateRetrieveUpdateDestroyAPIView(mixins.ListModelMixin,
                                              mixins.CreateModelMixin,
@@ -44,3 +50,26 @@ class ProductView(ListCreateRetrieveUpdateDestroyAPIView):
 class CommentView(ListCreateRetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
+
+
+# Custom TokenObtainPairView to return extra data
+class CustomTokenObtainPairView(TokenObtainPairView):
+    permission_classes = (AllowAny,)
+    # If you need to customize the returned token, do it here
+
+
+
+class LogoutView(generics.GenericAPIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=204)
+        except Exception as e:
+            return Response(status=400)
