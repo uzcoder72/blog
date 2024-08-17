@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny
 from app.serializers import RegisterSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
-
+from .permissions import CustomPermissions
 class ListCreateRetrieveUpdateDestroyAPIView(mixins.ListModelMixin,
                                              mixins.CreateModelMixin,
                                              mixins.RetrieveModelMixin,
@@ -43,9 +43,12 @@ class GroupView(ListCreateRetrieveUpdateDestroyAPIView):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
+
 class ProductView(ListCreateRetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [CustomPermissions]
+
 
 class CommentView(ListCreateRetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
