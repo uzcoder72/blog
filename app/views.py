@@ -9,6 +9,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 from .permissions import CustomPermissions
 from rest_framework.pagination import PageNumberPagination
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 class ListCreateRetrieveUpdateDestroyAPIView(mixins.ListModelMixin,
                                              mixins.CreateModelMixin,
                                              mixins.RetrieveModelMixin,
@@ -45,14 +47,17 @@ class GroupView(ListCreateRetrieveUpdateDestroyAPIView):
     serializer_class = GroupSerializer
 
 class ProductPagination(PageNumberPagination):
-    page_size = 1
+    page_size = 5
+
 class ProductView(ListCreateRetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all().select_related('group__category').prefetch_related('is_liked', 'attributes', 'comment_set')
     serializer_class = ProductSerializer
     permission_classes = [CustomPermissions]
     pagination_class = ProductPagination
 
-
+    @method_decorator(cache_page(60 * 5))
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class CommentView(ListCreateRetrieveUpdateDestroyAPIView):
